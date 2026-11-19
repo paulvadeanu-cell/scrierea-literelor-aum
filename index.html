@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SCRIE LITERELE</title>
+<style>
+:root{--bg:#fff8ec;--card:#ffffff;--ink:#1f2a44;--muted:#5b6682;--accent:#e0432f;--ok:#1f8a4c;--okbg:#e2f6e9;--bad:#b3261e;--badbg:#fde8e6;--btn:#2b4acb;--btnink:#fff;--line:#e4d9c3;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171b2b;--card:#232943;--ink:#f1f3fb;--muted:#aab3d1;--ok:#6fdc9a;--okbg:#17372a;--bad:#ff9d94;--badbg:#401d1b;--btn:#7d95ff;--btnink:#10162e;--line:#38406a}}
+:root[data-theme="dark"]{--bg:#171b2b;--card:#232943;--ink:#f1f3fb;--muted:#aab3d1;--ok:#6fdc9a;--okbg:#17372a;--bad:#ff9d94;--badbg:#401d1b;--btn:#7d95ff;--btnink:#10162e;--line:#38406a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Nunito","Trebuchet MS",Verdana,sans-serif;text-transform:uppercase;-webkit-user-select:none;user-select:none}
+main{max-width:620px;margin:0 auto;padding:14px 14px 28px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px}
+h1{font-size:1.5rem;margin:0;letter-spacing:.02em}
+.stars{font-weight:800;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:6px 14px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.tabs button{padding:10px 4px;font-size:.9rem}
+.lv{grid-template-columns:repeat(3,1fr);margin-bottom:0}
+button.lock{opacity:.55;border-style:dashed}
+button{font:inherit;font-weight:800;text-transform:uppercase;border:2px solid var(--btn);background:transparent;color:var(--btn);border-radius:14px;padding:12px 10px;font-size:.95rem;cursor:pointer;min-height:48px}
+button.on,button.primary{background:var(--btn);color:var(--btnink)}
+button:focus-visible{outline:4px solid var(--accent);outline-offset:2px}
+.board{position:relative;background:#fff;border:3px solid var(--line);border-radius:22px;overflow:hidden}
+canvas{display:block;width:100%;aspect-ratio:1/1;touch-action:none;cursor:crosshair}
+#instr{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.apple{flex:none;width:84px;height:84px;border-radius:50%;background:#d6eef8;border:4px solid #bfe3f2;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#16435a;font-weight:800;font-size:.8rem}
+.apple span{font-size:2.3rem;line-height:1}
+.msg{margin-top:12px;border-radius:16px;padding:14px 16px;font-size:1.08rem;font-weight:800;line-height:1.4;background:var(--card);border:2px solid var(--line)}
+.msg small{display:block;color:var(--muted);font-size:.75rem;margin-bottom:4px}
+.msg.ok{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.msg.bad{background:var(--badbg);border-color:var(--bad);color:var(--bad)}
+.row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.row button{flex:1 1 140px}
+#start{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px;z-index:5}
+#start .big{font-size:3.4rem;font-weight:900;color:var(--accent);line-height:1}
+#start button{font-size:1.3rem;padding:16px 36px}
+.hide{display:none!important}
+.note{color:var(--muted);font-size:.75rem;margin-top:10px}
+</style>
+</head>
+<body>
+<div id="start">
+  <div class="big">A a M m U u</div>
+  <h1>BUN VENIT LA JOCUL LITERELOR!</h1>
+  <p style="max-width:420px;font-weight:700">VEI SCRIE CU DEGETUL LITERELE A, M ȘI U, MARI ȘI MICI. APASĂ BUTONUL PENTRU A ÎNCEPE.</p>
+  <button class="primary" id="go">ÎNCEPE JOCUL</button>
+</div>
+<main>
+  <header><h1>SCRIE LITERELE</h1><div class="stars" id="stars">STELE: 0 ⭐</div></header>
+  <div class="tabs lv"><button id="lv1" class="on">NIVELUL I</button><button id="lv2">NIVELUL II</button><button id="lv3">NIVELUL III</button></div>
+  <div class="note" id="prog" style="margin:6px 0 0"></div>
+  <div class="tabs" id="tabs">
+    
+    
+  </div>
+  <div class="board">
+    <canvas id="cv" width="1000" height="1000" aria-label="ZONA DE SCRIS"></canvas>
+    
+  </div>
+  <div class="msg" id="instr"><div><small>INSTRUCȚIUNE</small><div id="instrT"></div></div><div class="apple" aria-hidden="true"><span id="picE">🍎</span><b id="picL">MĂR</b></div></div>
+  <div class="msg hide" id="fb"><small>REZULTAT</small><div id="fbT"></div></div>
+  <div class="row">
+    <button id="listen">🔊 ASCULTĂ DIN NOU</button>
+    <button id="reset">ȘTERGE ȘI REIA</button>
+    <button id="next" class="primary hide">URMĂTOAREA LITERĂ</button>
+  </div>
+  <div class="row"><button id="snd">SUNET: PORNIT</button></div>
+  <div class="note" id="vnote"></div>
+</main>
+<script>
+const S=600; // spatiu logic 600x600
+const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+function line(p,a,b){const n=Math.max(1,Math.round(dist(a,b)/4));for(let i=p.length?1:0;i<=n;i++)p.push([a[0]+(b[0]-a[0])*i/n,a[1]+(b[1]-a[1])*i/n]);}
+function arc(p,cx,cy,rx,ry,t0,t1){for(let i=1;i<=40;i++){const t=t0+(t1-t0)*i/40;p.push([cx+rx*Math.cos(t),cy+ry*Math.sin(t)]);}}
+function poly(...w){const p=[];for(let i=0;i<w.length-1;i++)line(p,w[i],w[i+1]);return p;}
+// M mare: două trasee
+const M1=poly([120,100],[120,500]);
+const M2=poly([131,114],[300,312],[480,100],[480,500]);
+// m mic: un singur traseu continuu (în jos, înapoi în sus, arcadă, în jos, înapoi în sus, arcadă, în jos)
+const m1=(()=>{const p=[];line(p,[110,250],[110,500]);line(p,[110,500],[110,370]);arc(p,190,370,80,120,Math.PI,2*Math.PI);line(p,[270,370],[270,500]);line(p,[270,500],[270,370]);arc(p,350,370,80,120,Math.PI,2*Math.PI);line(p,[430,370],[430,500]);return p;})();
+const U1=(()=>{const p=[];line(p,[155,100],[155,355]);arc(p,300,355,145,145,Math.PI,0);line(p,[445,355],[445,100]);return p;})();
+const u1=(()=>{const p=[];line(p,[220,250],[220,410]);arc(p,300,410,80,90,Math.PI,0);line(p,[380,410],[380,250]);line(p,[380,250],[380,500]);return p;})();
+const A1=poly([300,100],[150,500]),A2=poly([300,100],[450,500]),A3=poly([222,312],[378,312]);
+const a1=(()=>{const p=[[195,305]];arc(p,300,305,105,65,Math.PI,2*Math.PI);line(p,[405,305],[405,500]);return p;})();
+const a2=(()=>{const p=[];line(p,[405,370],[320,370]);arc(p,320,435,125,65,1.5*Math.PI,0.9);return p;})();
+const ORDER=['M','m','U','u','A','a'];
+const LET={
+ M:{nume:'M MARE',pic:['🍎','MĂR'],strokes:[M1,M2],ins:[
+  'SCRIE LITERA M MARE. ÎNCEPE DE LA PUNCTUL ROȘU NUMĂRUL 1 ȘI TRASEAZĂ O LINIE ÎN JOS, PE SENSUL SĂGEȚII.',
+  'ACUM ÎNCEPE DE LA PUNCTUL ROȘU NUMĂRUL 2. COBOARĂ ÎN DIAGONALĂ, URCĂ ÎN DIAGONALĂ, APOI COBOARĂ DREPT, PÂNĂ LA SĂGEATĂ.']},
+ m:{nume:'M MICĂ',pic:['🍎','MĂR'],strokes:[m1],ins:[
+  'SCRIE LITERA M MICĂ. ÎNCEPE DE LA PUNCTUL ROȘU, COBOARĂ PÂNĂ JOS, URCĂ ÎNAPOI PE ACEEAȘI LINIE, FĂ O ARCADĂ ȘI COBOARĂ. APOI URCĂ ÎNAPOI ȘI FĂ A DOUA ARCADĂ, PÂNĂ LA SĂGEATĂ.']},
+ U:{nume:'U MARE',pic:['🐻','URS'],strokes:[U1],ins:[
+  'SCRIE LITERA U MARE. ÎNCEPE DE LA PUNCTUL ROȘU, COBOARĂ DREPT, ROTUNJEȘTE LA BAZĂ ȘI URCĂ DREPT, PÂNĂ LA SĂGEATĂ.']},
+ u:{nume:'U MICĂ',pic:['🐻','URS'],strokes:[u1],ins:[
+  'SCRIE LITERA U MICĂ. ÎNCEPE DE LA PUNCTUL ROȘU, COBOARĂ, ROTUNJEȘTE LA BAZĂ ȘI URCĂ PÂNĂ SUS. APOI COBOARĂ PE ACEEAȘI LINIE, PÂNĂ LA SĂGEATĂ.']},
+ A:{nume:'A MARE',pic:['🍍','ANANAS'],strokes:[A1,A2,A3],lab:[[165,540],[460,540],[205,350]],ins:[
+  'SCRIE LITERA A MARE. ÎNCEPE DE LA PUNCTUL ROȘU DIN VÂRF ȘI COBOARĂ ÎN DIAGONALĂ SPRE STÂNGA, PÂNĂ LA SĂGEATA NUMĂRUL 1.',
+  'ACUM ÎNCEPE DIN NOU DE LA VÂRF ȘI COBOARĂ ÎN DIAGONALĂ SPRE DREAPTA, PÂNĂ LA SĂGEATA NUMĂRUL 2.',
+  'ACUM TRASEAZĂ LINIA ORIZONTALĂ, DE LA PUNCTUL ROȘU NUMĂRUL 3, DE LA STÂNGA SPRE DREAPTA.']},
+ a:{nume:'A MICĂ',pic:['🍍','ANANAS'],strokes:[a1,a2],lab:[[160,320],[372,412]],ins:[
+  'SCRIE LITERA A MICĂ. ÎNCEPE DE LA PUNCTUL ROȘU NUMĂRUL 1, FĂ O CURBĂ SPRE DREAPTA ȘI COBOARĂ DREPT, PÂNĂ LA SĂGEATĂ.',
+  'ACUM ÎNCEPE DE LA PUNCTUL ROȘU NUMĂRUL 2, MERGI SPRE STÂNGA, ROTUNJEȘTE ÎN JOS ȘI REVINO SPRE LINIA DREAPTĂ, PÂNĂ LA SĂGEATĂ.']}
+};
+let cur='M',idx=0,done=false,stars=0,soundOn=true,started=false;
+let drawing=false,user=[],prog=0,off=0,inkDone=[];
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+const U=s=>s.toLocaleUpperCase('ro-RO');
+
+// ---- voce ----
+let voice=null;
+function pickVoice(){const v=speechSynthesis.getVoices();voice=v.find(x=>x.lang&&x.lang.toLowerCase().startsWith('ro'))||null;
+ $('vnote').textContent=('speechSynthesis' in window)?(voice?'':U('Pe acest dispozitiv nu există o voce în limba română. Instrucțiunile se văd în scris, iar sunetul poate fi slab sau lipsă.')):U('Acest browser nu poate citi textul cu voce tare.');}
+if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function say(t){if(!soundOn||!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(U(t));u.lang='ro-RO';if(voice)u.voice=voice;u.rate=.85;u.pitch=1.05;speechSynthesis.speak(u);}
+
+// ---- mesaje ----
+function showInstr(){let t=U(LET[cur].ins[idx]);if(idx===0&&level>1)t+=level===2?' NIVELUL II: LINIA ESTE PUNCTATĂ. RĂMÂI CÂT MAI APROAPE DE PUNCTE, PE SENSUL SĂGEȚII.':' NIVELUL III: VEZI DOAR LINIILE ORIZONTALE ȘI PUNCTELE. PORNEȘTE DE LA PUNCTUL ROȘU, SCRIE LITERA ÎNTRE LINII ȘI TERMINĂ LA PUNCTUL NEGRU.';t=lv3(t);$('instrT').textContent=t;return t;}
+function showFb(t,ok){const b=$('fb');b.classList.remove('hide','ok','bad');b.classList.add(ok?'ok':'bad');$('fbT').textContent=U(t);}
+function hideFb(){$('fb').classList.add('hide');}
+
+// ---- desen ----
+function arrow(p){const a=p[p.length-8],b=p[p.length-1];const ang=Math.atan2(b[1]-a[1],b[0]-a[0]);ctx.save();ctx.translate(b[0],b[1]);ctx.rotate(ang);ctx.beginPath();ctx.moveTo(14,0);ctx.lineTo(-10,-10);ctx.lineTo(-10,10);ctx.closePath();ctx.fillStyle='#111';ctx.fill();ctx.restore();}
+function path(p){ctx.beginPath();p.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));}
+function draw(){
+ ctx.setTransform(cv.width/S,0,0,cv.width/S,0,0);ctx.clearRect(0,0,S,S);ctx.lineCap='round';ctx.lineJoin='round';
+ const st=LET[cur].strokes;
+ if(level===1)st.forEach((p,i)=>{path(p);ctx.lineWidth=26;ctx.strokeStyle=(i<idx||done)?'#bfe6cb':'#c4c6cb';ctx.stroke();});
+ if(level<3)st.forEach(p=>{path(p);ctx.strokeStyle='#111';if(level===2){ctx.lineWidth=6;ctx.setLineDash([0.1,13]);}else ctx.lineWidth=3;ctx.stroke();ctx.setLineDash([]);arrow(p);});
+ if(level===3)guide(st);inkDone.forEach(p=>{path(p);ctx.lineWidth=11;ctx.strokeStyle='#1f9d55';ctx.stroke();});
+ if(user.length>1){path(user);ctx.lineWidth=11;ctx.strokeStyle='#2b4acb';ctx.stroke();}
+ st.forEach((p,i)=>{const s=p[0],act=(i===idx&&!done);ctx.beginPath();ctx.arc(s[0],s[1],act?12:8,0,7);ctx.fillStyle=act?'#e0242a':'#a33';ctx.globalAlpha=act?1:.55;ctx.fill();ctx.globalAlpha=1;
+  const lb=LET[cur].lab;if(lb){ctx.fillStyle='#111';ctx.font='bold 26px sans-serif';ctx.fillText(String(i+1),lb[i][0],lb[i][1]);}else if(st.length>1){ctx.fillStyle='#111';ctx.font='bold 26px sans-serif';ctx.fillText(String(i+1),s[0]-(i?-14:30),s[1]-6);}
+  else{ctx.fillStyle='#111';ctx.font='bold 26px sans-serif';ctx.fillText('1',s[0]-30,s[1]-6);}});
+}
+
+// ---- urmărire traseu ----
+function track(pt){const P=LET[cur].strokes[idx],n=P.length;let best=Infinity,bi=prog;
+ for(let i=prog;i<Math.min(n,prog+16);i++){const d=dist(pt,P[i]);if(d<best){best=d;bi=i;}}
+ if(best<20)prog=bi;
+ let mn=Infinity;for(let i=0;i<n;i++){const d=dist(pt,P[i]);if(d<mn)mn=d;}
+ if(mn>23)off++;}
+function pos(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)/r.width*S,(e.clientY-r.top)/r.height*S];}
+cv.addEventListener('pointerdown',e=>{if(!started||done)return;e.preventDefault();cv.setPointerCapture(e.pointerId);drawing=true;user=[pos(e)];prog=0;off=0;track(user[0]);hideFb();draw();});
+cv.addEventListener('pointermove',e=>{if(!drawing)return;e.preventDefault();const p=pos(e);user.push(p);track(p);draw();});
+function end(e){if(!drawing)return;drawing=false;evaluate();}
+cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
+
+function evaluate(){
+ const P=LET[cur].strokes[idx],n=P.length,s=user[0];
+ let ok=false,msg='';
+ if(user.length<8){msg='TRASEUL ESTE PREA SCURT. ÎNCEARCĂ DIN NOU, DE LA PUNCTUL ROȘU, PE SENSUL SĂGEȚII.';}
+ else if(dist(s,P[0])>30){
+  msg=dist(s,P[n-1])<30?'AI ÎNCEPUT DIN CAPĂTUL GREȘIT, ADICĂ ÎN SENS INVERS. PORNEȘTE DE LA PUNCTUL ROȘU ȘI MERGI ÎN SENSUL SĂGEȚII.':'TREBUIE SĂ ÎNCEPI DE LA PUNCTUL ROȘU. ÎNCEARCĂ DIN NOU!';}
+ else if(off/user.length>0.2){msg='AI IEȘIT DIN TRASEU. ÎNCEARCĂ SĂ RĂMÂI '+(level===3?'PE FORMA LITEREI, ÎNTRE LINII':level===2?'PE LINIA PUNCTATĂ':'PE BANDA GRI')+', PE SENSUL SĂGEȚII.';}
+ else if(prog<n*0.9){msg='AI OPRIT PREA DEVREME SAU NU AI URMAT TOT TRASEUL ÎN ORDINEA CORECTĂ. CONTINUĂ PÂNĂ LA SĂGEATĂ. ÎNCEARCĂ DIN NOU!';}
+ else ok=true;
+ if(!ok){user=[];msg=lv3(msg);draw();showFb(msg,false);say(msg);return;}
+ inkDone.push(user.slice());user=[];idx++;
+ let fb;
+ if(idx>=LET[cur].strokes.length){done=true;const fresh=!doneSet[level].has(cur);if(fresh)stars++;doneSet[level].add(cur);$('stars').textContent='STELE: '+stars+' ⭐';
+  fb='BRAVO! AI SCRIS CORECT LITERA '+LET[cur].nume+', PE SENSUL CORECT!'+(fresh?' AI PRIMIT O STEA!':'');if(fresh&&doneSet[level].size===ORDER.length){lvlUp=true;fb+=level<3?' FELICITĂRI! AI TERMINAT NIVELUL '+RO[level]+'. ACUM POȚI TRECE LA NIVELUL '+RO[level+1]+'.':' FELICITĂRI! AI TERMINAT TOATE NIVELURILE!';}
+  $('next').classList.remove('hide');$('next').textContent=(lvlUp&&level<3)?'TRECI LA NIVELUL '+RO[level+1]:'URMĂTOAREA: '+LET[nextKey()].nume;refreshUI();
+  showFb(fb,true);say(fb);draw();return;}
+ fb='FOARTE BINE! LINIA '+idx+' ESTE CORECTĂ.';
+ const ins=showInstr();showFb(fb,true);say(fb+' '+ins);draw();}
+
+function setLetter(k){lvlUp=false;cur=k;idx=0;done=false;user=[];inkDone=[];drawing=false;
+ document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));$('picE').textContent=LET[k].pic[0];$('picL').textContent=LET[k].pic[1];
+ $('next').classList.add('hide');hideFb();refreshUI();const t=showInstr();draw();if(started)say(t);}
+let level=1,lvlUp=false;const RO=['','I','II','III'];const doneSet={1:new Set(),2:new Set(),3:new Set()};
+function refreshUI(){
+ [1,2,3].forEach(n=>{const b=$('lv'+n),open=n===1||doneSet[n-1].size===ORDER.length;b.classList.toggle('lock',!open);b.textContent='NIVELUL '+RO[n]+(open?'':' 🔒');});
+ document.querySelectorAll('#tabs button').forEach(b=>{b.textContent=LET[b.dataset.k].nume+(doneSet[level].has(b.dataset.k)?' ✓':'');});
+ $('prog').textContent='NIVELUL '+RO[level]+': '+doneSet[level].size+' DIN '+ORDER.length+' LITERE SCRISE CORECT.';
+}
+function lv3(s){return level===3?s.replace(/SĂGEATA NUMĂRUL/g,'CAPĂTUL LINIEI').replace(/SĂGEATĂ/g,'PUNCTUL NEGRU').replace(/SENSUL SĂGE[^ .,]+/g,'SENSUL CORECT'):s;}
+function guide(st){
+ ctx.save();ctx.lineCap='butt';ctx.strokeStyle='#2fa58a';ctx.lineWidth=4;
+ const LN=cur===cur.toUpperCase()?[100,312,500]:[100,250,500];LN.forEach(y=>{ctx.beginPath();ctx.moveTo(15,y);ctx.lineTo(585,y);ctx.stroke();});
+ ctx.restore();
+ const tp=[],k=6;
+ st.forEach(p=>{const n=p.length;for(let i=k;i<n-k;i++){const y=p[i][1],a=p[i-k][1],b=p[i+k][1];
+  if(((y<a&&y<b)||(y>a&&y>b))&&LN.some(L=>Math.abs(y-L)<=12)&&tp.every(q=>dist(q,p[i])>14))tp.push(p[i]);}});
+ (LET[cur].extra||[]).forEach(q=>tp.push(q));
+ tp.forEach(q=>{ctx.beginPath();ctx.arc(q[0],q[1],8,0,7);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#111';ctx.stroke();});
+ st.forEach(p=>{const e=p[p.length-1];ctx.beginPath();ctx.arc(e[0],e[1],9,0,7);ctx.fillStyle='#111';ctx.fill();});
+}
+const nextKey=()=>ORDER[(ORDER.indexOf(cur)+1)%ORDER.length];
+ORDER.forEach(k=>{const b=document.createElement('button');b.dataset.k=k;b.textContent=LET[k].nume;b.onclick=()=>setLetter(k);$('tabs').appendChild(b);});
+
+[1,2,3].forEach(n=>{$('lv'+n).onclick=()=>{if(n>1&&doneSet[n-1].size<ORDER.length){const m='NIVELUL '+RO[n]+' SE DESCHIDE DUPĂ CE SCRII CORECT TOATE LITERELE DIN NIVELUL '+RO[n-1]+'.';showFb(m,false);say(m);return;}level=n;[1,2,3].forEach(j=>$('lv'+j).classList.toggle('on',j===n));setLetter(cur);};});
+$('next').onclick=()=>{if(lvlUp&&level<3){level++;[1,2,3].forEach(j=>$('lv'+j).classList.toggle('on',j===level));setLetter('M');}else setLetter(nextKey());};
+$('reset').onclick=()=>setLetter(cur);
+$('listen').onclick=()=>say(lv3(U(LET[cur].ins[Math.min(idx,LET[cur].ins.length-1)])));
+$('snd').onclick=()=>{soundOn=!soundOn;$('snd').textContent='SUNET: '+(soundOn?'PORNIT':'OPRIT');if(!soundOn&&'speechSynthesis' in window)speechSynthesis.cancel();else say('SUNETUL ESTE PORNIT.');};
+$('go').onclick=()=>{started=true;$('start').classList.add('hide');setLetter('M');};refreshUI();
+showInstr();draw();
+</script>
+</body>
+</html>
